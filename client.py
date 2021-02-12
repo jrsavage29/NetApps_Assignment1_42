@@ -5,6 +5,7 @@ import pickle
 import wolframalpha
 import hashlib
 import os
+import json
 from playsound import playsound
 
 from ClientKeys import tweepyAPI_key
@@ -55,7 +56,13 @@ def main(argv):
     #setup tweepy api
     class listener(StreamListener):
         def on_data(self, data):
-            print(data)
+            # print(data)
+            tweet_data = json.loads(data)
+            parsed_data = tweet_data['text']
+            tweet_question = parsed_data.strip("#ECE4564T15")
+            question = tweet_question
+
+            print("The tweet I received: ", question)
             #eventually want to parse this data and set the variable question equal to it (e.g. question = parsed twitter data)
             #Setup connection to server
             host = 'localhost'
@@ -65,7 +72,7 @@ def main(argv):
             s.connect((host,port))
 
             #Prepare query for wolfram to answer
-            question = input('What is your Question? ')
+            #question = input('What is your Question? ')
 
             s.send(question.encode())
             data = s.recv(size)
