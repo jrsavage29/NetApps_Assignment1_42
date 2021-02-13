@@ -49,20 +49,25 @@ def main(argv):
     size = int(socket_size)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((host, port))
+    print("[Server 01] - Created socket at " + str(s.getsockname()[0]) + " on port " + str(server_port))
     s.listen()
     while True:
-        print("Server waiting for connection...")
+        print("[Server 02] - Listening for client connections")
         client, address = s.accept()
-        print("Client connected from", address)
+        client_ip, client_port = address
+        print("[Server 03 ] - Accepted client connection from " + str(client_ip) + " on port " + str(client_port))
 
         # receiving pickled data from client
         pickled_data = client.recv(size)
         # print(pickled_data)
         # unpickling data
         data = pickle.loads(pickled_data)
+        print("[Server 04] - Received data: ", data)
         if data:
             # getting data from the tuple payload
             question_key, encrypted_question, question_check_sum = data
+
+            print("[Server 05] - Decrypt Key: ", question_key)
             # print("Question:")
             # print("key: ", question_key, "\nEncrypted question: ", encrypted_question, "\nCheck sum", question_check_sum)
             # check sum to verify with the received one
@@ -72,7 +77,7 @@ def main(argv):
                 # fernet instance for encoding and decoding
                 fernet = Fernet(question_key)
                 question = fernet.decrypt(encrypted_question).decode()
-                print("Received from client: ", question)
+                print("[Server 06] - Plain Text: ", question)
                 # create query audio file and play it
                 with open("Question.mp3", "wb") as audiofile:
                     audiofile.write(
@@ -80,23 +85,31 @@ def main(argv):
                                                   voice='en-US_AllisonV3Voice',
                                                   accept='audio/mp3'
                                                   ).get_result().content)
+                print("[Server 07] - Speaking Question: ", question)
                 playsound('Question.mp3')
                 os.remove('Question.mp3')
 
                 # generate response to question through wolfram and display it to the console
+                print("[Server 08] - Sending question to Wolframalpha")
                 response = clientWolf.query(question)
                 answer = next(response.results).text
-                # print(answer)
+                print("[Server 09] - Received answer from Wolframalpha: ", answer)
+                
                 # encrypt the answer
                 answer_key = fernet.generate_key()
+                print("[Server 10] - Encryption Key: ", answer_key)
                 encrypted_answer = fernet.encrypt(answer.encode())
+                print("[Server 11] - Cipher Text: ", encrypted_answer)
                 answer_check_sum = hashlib.md5(encrypted_answer)
+                print("[Server 12] - Generated MD5 Checksum: ", answer_check_sum)
                 # tuple payload to send to server
                 pickle_tuple = (answer_key, encrypted_answer, answer_check_sum.hexdigest())
-                # print("Answer:")
+                print("[Server 13] - Answer payload: ", pickle_tuple)
+                
                 # print("key: ", answer_key, "\nEncrypted Answer: ", encrypted_answer, "\nCheck sum: ", answer_check_sum.hexdigest())
                 # pickling the data
                 pickle_string = pickle.dumps(pickle_tuple)
+                print("[Server 14] - Sending answer: ", pickle_string)
                 # sending the pickle to the server
                 client.send(pickle_string)
         client.close()

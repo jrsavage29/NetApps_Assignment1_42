@@ -43,8 +43,7 @@ def main(argv):
         elif argv[argpos] == '-z':
             socket_size = argv[argpos + 1]
             # Display what was parsed
-    print("Sever IP is " + str(server_ip) + "\nServer Port is " + str(server_port) + "\nSocket Size is " + str(
-        socket_size))
+    print("[Client 01] - Connecting to " + str(server_ip) + " on port " + str(server_port) )
 
     # setup of IBM authenticators
     api = IAMAuthenticator(ibmTextToSpeech_key)
@@ -68,7 +67,8 @@ def main(argv):
             # fernet instance for encoding and decoding
             fernet = Fernet(key)
 
-            print("The tweet I received: ", question)
+            print("[Client 03] - New question found: ", question)
+            print(["[Client 04] - Generated Encryption Key: ", key])
             # eventually want to parse this data and set the variable question equal to it (e.g. question = parsed twitter data)
             # Setup connection to server
             host = server_ip
@@ -79,14 +79,17 @@ def main(argv):
 
             # encrypt data to send to server
             encrypted_question = fernet.encrypt(question.encode())
+            print("[Client 05] - Cipher Text: ", encrypted_question)
             # check sum of question to send
             question_check_sum = hashlib.md5(encrypted_question)
             # tuple payload to send to server
             pickle_tuple = (key, encrypted_question, question_check_sum.hexdigest())
+            print("[Client 06] - Question payload: ", pickle_tuple)
             # print("Question:")
             # print("Question: ", question, "\nkey: ", key, "\nEncrypt quest: ", encrypted_question, "\ncheck sum: ", question_check_sum.hexdigest())
             # pickling the data
             pickle_string = pickle.dumps(pickle_tuple)
+            print("[Client 07] - Sending question: ", pickle_string)
             # sending the pickle to the server
             s.send(pickle_string)
 
@@ -95,7 +98,9 @@ def main(argv):
             # print(pickled_data)
             # unpickling data
             data = pickle.loads(pickled_data)
+            print("[Client 08] - Received data: ", data)
             answer_key, encrypted_answer, answer_check_sum = data
+            print("[Client 09] - Decrypt Key: ", answer_key)
             # print("Answer:")
             # print("key: ", answer_key, "\nEncrypted Answer: ", encrypted_answer, "\nCheck sum", answer_check_sum)
             # check sum to verify with the one received
@@ -103,7 +108,7 @@ def main(argv):
             # print(verify_check_sum.hexdigest())
             if verify_check_sum.hexdigest() == answer_check_sum:
                 answer = fernet.decrypt(encrypted_answer).decode()
-                print("Received from server: ", answer)
+                print("[Client 10] - Plain Text: ", answer)
                 # create answer audio file and play it
                 with open("Answer.mp3", "wb") as audiofile:
                     audiofile.write(
@@ -111,16 +116,18 @@ def main(argv):
                                                   voice='en-US_AllisonV3Voice',
                                                   accept='audio/mp3'
                                                   ).get_result().content)
+                print("[Client 11] - Speaking answer: ", answer)
                 playsound('Answer.mp3')
                 os.remove('Answer.mp3')
                 s.close()
-
+                print('[Client 02]- Listening for tweets from Twitter API that contain questions')
                 return True
 
         def on_error(self, status):
             print(status)
 
     # create twitter stream
+    print('[Client 02]- Listening for tweets from Twitter API that contain questions')
     twitterStream = Stream(auth, listener())
     twitterStream.filter(track=["#ECE4564T15"])
 
