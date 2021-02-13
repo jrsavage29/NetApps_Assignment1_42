@@ -44,9 +44,9 @@ def main(argv):
     clientWolf = wolframalpha.Client(wolframAPI_key)
 
     # Setup connection to client
-    host = 'localhost'
-    port = 50000
-    size = 1024
+    host = ''
+    port = int(server_port)
+    size = int(socket_size)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((host, port))
     s.listen()

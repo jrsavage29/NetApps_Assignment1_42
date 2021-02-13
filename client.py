@@ -71,9 +71,9 @@ def main(argv):
             print("The tweet I received: ", question)
             # eventually want to parse this data and set the variable question equal to it (e.g. question = parsed twitter data)
             # Setup connection to server
-            host = 'localhost'
-            port = 50000
-            size = 1024
+            host = server_ip
+            port = int(server_port)
+            size = int(socket_size)
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((host, port))
 
