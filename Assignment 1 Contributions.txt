@@ -10,9 +10,6 @@ Jamahl:
 -
 
 Chance:
--
--
--
--
--
--
+- Added encryption and decryption for sending and receiving
+- Added pickling for data that's sent
+- Added check sum verification
