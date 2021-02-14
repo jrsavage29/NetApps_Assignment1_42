@@ -94,7 +94,7 @@ def main(argv):
                 response = clientWolf.query(question)
                 answer = next(response.results).text
                 print("[Server 09] - Received answer from Wolframalpha: ", answer)
-                
+
                 # encrypt the answer
                 answer_key = fernet.generate_key()
                 print("[Server 10] - Encryption Key: ", answer_key)
@@ -105,7 +105,7 @@ def main(argv):
                 # tuple payload to send to server
                 pickle_tuple = (answer_key, encrypted_answer, answer_check_sum.hexdigest())
                 print("[Server 13] - Answer payload: ", pickle_tuple)
-                
+
                 # print("key: ", answer_key, "\nEncrypted Answer: ", encrypted_answer, "\nCheck sum: ", answer_check_sum.hexdigest())
                 # pickling the data
                 pickle_string = pickle.dumps(pickle_tuple)

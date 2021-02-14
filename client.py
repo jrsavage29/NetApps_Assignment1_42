@@ -43,7 +43,7 @@ def main(argv):
         elif argv[argpos] == '-z':
             socket_size = argv[argpos + 1]
             # Display what was parsed
-    print("[Client 01] - Connecting to " + str(server_ip) + " on port " + str(server_port) )
+    print("[Client 01] - Connecting to " + str(server_ip) + " on port " + str(server_port))
 
     # setup of IBM authenticators
     api = IAMAuthenticator(ibmTextToSpeech_key)
@@ -68,7 +68,7 @@ def main(argv):
             fernet = Fernet(key)
 
             print("[Client 03] - New question found: ", question)
-            print(["[Client 04] - Generated Encryption Key: ", key])
+            print("[Client 04] - Generated Encryption Key: ", key)
             # eventually want to parse this data and set the variable question equal to it (e.g. question = parsed twitter data)
             # Setup connection to server
             host = server_ip
